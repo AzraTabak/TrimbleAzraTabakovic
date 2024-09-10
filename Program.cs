@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 public class Point2D
 {
@@ -48,8 +49,8 @@ public class Circular
     public Point2D CalculateCenter()
     {
 
-        double centerX = StartPoint.X - Math.Abs(Radius) * Math.Sin(StartDirection);//because of normal direction=startdiection+pi/2, we can leave also as + Cos(startdirection+pi/2))
-        double centerY = StartPoint.Y + Math.Abs(Radius) * Math.Cos(StartDirection);
+        double centerX = StartPoint.X + Radius * Math.Sin(Math.PI/2-StartDirection);
+        double centerY = StartPoint.Y - Radius * Math.Cos(Math.PI/2 - StartDirection);
         return new Point2D(centerX, centerY);
     }
     public Point2D EvaluateAt(double length)
@@ -57,15 +58,43 @@ public class Circular
 
 
         Point2D center = CalculateCenter();
-        double newAngle = (length / Math.Abs(Radius)) * Math.Sign(Radius);
-        double newX = center.X + Math.Abs(Radius) * Math.Cos(StartDirection + newAngle);
-        double newY = center.Y + Math.Abs(Radius) * Math.Sin(StartDirection + newAngle);
+        double newX, newY;
+        double newAngle = length / Math.Abs(Radius);
+        if (Radius >= 0)
+        {
+            newX = center.X + Radius * Math.Sin(newAngle +StartDirection-Math.PI/2);
+            newY = center.Y + Radius* Math.Cos(newAngle +StartDirection-Math.PI/2);
+        }
+        else
+        {
+            newX = center.X - Math.Abs(Radius) * Math.Sin(newAngle - StartDirection - Math.PI / 2);
+            newY = center.Y + Math.Abs(Radius) * Math.Cos(newAngle -StartDirection- Math.PI / 2);
 
+        }
         return new Point2D(newX, newY);
     }
 }
 
-public class Program
+public class Clothoid
+{
+    Point2D StartPoint;
+    public double StartDirection; 
+    public double StartCurvature; 
+    public double EndCurvature;   
+    public double Length;
+
+    public Clothoid(Point2D startPoint, double startDirection, double startCurvature, double endCurvature, double length)
+    {
+        StartPoint = startPoint;
+        StartDirection = startDirection;
+        StartCurvature = startCurvature;
+        EndCurvature = endCurvature;
+        Length = length;
+    }
+
+}
+
+    public class Program
 {
     public static void Main()
     {
