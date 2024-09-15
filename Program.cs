@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using MathNet.Numerics;
+using MathNet.Numerics.RootFinding;
+using Meta.Numerics.Functions;
+
 
 public class Point2D
 {
@@ -15,6 +19,7 @@ public class Point2D
 }
 public class Straight
 {
+    
 
     public Point2D Start;
     public double Direction;
@@ -92,30 +97,28 @@ public class Clothoid
         Length = length;
     }
 
-    public Point2D EvaluateAt(double length)
+    public Point2D EvaluateAt(double s)
     {
-       
-        
-        double curvatureStep = (EndCurvature - StartCurvature) / Length;
+        double A = Math.Sqrt(Length / EndCurvature);
+        var fresnelS = AdvancedMath.FresnelS(s / A);
+        var fresnelC = AdvancedMath.FresnelC(s / A);
 
-        double currentX = StartPoint.X;
-        double currentY = StartPoint.Y;
-        double currentDirection = StartDirection;
-
-        
-        double stepSize = 0.1; 
-        for (double s = 0; s < length; s += stepSize)
+        double x = A * fresnelC;
+        double y = A * fresnelS;
+        double x_new = y;
+        double y_new = x;
+        var angle = StartDirection;
+        if (EndCurvature > 0)
         {
-            
-            double currentCurvature = StartCurvature + curvatureStep * s;
-
-            currentDirection += currentCurvature * stepSize;
-
-            currentX += stepSize * Math.Cos(currentDirection);
-            currentY += stepSize * Math.Sin(currentDirection);
+            angle=-StartDirection;
         }
+        double x_rot = StartPoint.X + x_new * Math.Cos(angle) - y_new * Math.Sin(angle);
+        double y_rot= StartPoint.Y + x_new *Math.Sin(angle)+y_new*Math.Cos(angle);//rotation 
+        
 
-        return new Point2D(currentX, currentY);
+        return new Point2D(x_rot, y_rot);
+        
+
     }
 }
 
@@ -136,12 +139,20 @@ public class Program
         var pointOnArc = circularSegment.EvaluateAt(409.716808);
 
         Console.WriteLine($"New point on circural arc is ( {pointOnArc.X}   ,   {pointOnArc.Y}) ");
-        
-        var clothoidSegment = new Clothoid(newPointOnStraight, 0.6488475748464434, 0, 0.002844141069397042, 470);
-        double clothoidLength = 300.0;
-        var pointOnClothoid = clothoidSegment.EvaluateAt(clothoidLength);
 
-        Console.WriteLine($"New point on clothoid is ( {pointOnClothoid.X}   ,   {pointOnClothoid.Y}) ");
+        var clothoidSegment = new Clothoid(newPointOnStraight, 0.6488475649504265, 0, 0.002844141069397042, 47);
+        
+
+        Point2D pointOnClothoid;
+        //double stepSize = 1.0; 
+        //for (double length = 0; length <= clothoidSegment.Length; length += stepSize)
+        //{
+        //    pointOnClothoid = clothoidSegment.EvaluateAt(length);
+        //    Console.WriteLine($"Point on clothoid at length {length}: ( {pointOnClothoid.X}, {pointOnClothoid.Y} )");
+        //}
+        pointOnClothoid = clothoidSegment.EvaluateAt(45);
+        Console.WriteLine($"Point on clothoid at length {45}: ( {pointOnClothoid.X}, {pointOnClothoid.Y} )");
+
         Console.ReadKey();
 
     }
