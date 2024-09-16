@@ -100,18 +100,20 @@ public class Clothoid
     public Point2D EvaluateAt(double s)
     {
         double A = Math.Sqrt(Length / EndCurvature);
-        var fresnelS = AdvancedMath.FresnelS(s / A);
-        var fresnelC = AdvancedMath.FresnelC(s / A);
+        var fresnelS = AdvancedMath.FresnelS(s / (A*Math.Sqrt(Math.PI)));
+        var fresnelC = AdvancedMath.FresnelC(s / (A * Math.Sqrt(Math.PI)));
 
-        double x = A * fresnelC;
-        double y = A * fresnelS;
+        double x = A * Math.Sqrt(Math.PI)* fresnelC;
+        double y = A * Math.Sqrt(Math.PI)* fresnelS;
         double x_new = y;
         double y_new = x;
         var angle = StartDirection;
+
         if (EndCurvature > 0)
         {
             angle=-StartDirection;
         }
+
         double x_rot = StartPoint.X + x_new * Math.Cos(angle) - y_new * Math.Sin(angle);
         double y_rot= StartPoint.Y + x_new *Math.Sin(angle)+y_new*Math.Cos(angle);//rotation 
         
@@ -144,14 +146,16 @@ public class Program
         
 
         Point2D pointOnClothoid;
+
         //double stepSize = 1.0; 
         //for (double length = 0; length <= clothoidSegment.Length; length += stepSize)
         //{
         //    pointOnClothoid = clothoidSegment.EvaluateAt(length);
         //    Console.WriteLine($"Point on clothoid at length {length}: ( {pointOnClothoid.X}, {pointOnClothoid.Y} )");
         //}
-        pointOnClothoid = clothoidSegment.EvaluateAt(45);
-        Console.WriteLine($"Point on clothoid at length {45}: ( {pointOnClothoid.X}, {pointOnClothoid.Y} )");
+
+        pointOnClothoid = clothoidSegment.EvaluateAt(47);
+        Console.WriteLine($"Point on clothoid at length {47}: ( {pointOnClothoid.X}, {pointOnClothoid.Y} )");
 
         Console.ReadKey();
 
